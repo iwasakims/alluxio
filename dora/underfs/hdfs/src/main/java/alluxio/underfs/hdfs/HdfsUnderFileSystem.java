@@ -57,6 +57,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Trash;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
+import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
 import org.apache.hadoop.security.SecurityUtil;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
@@ -219,7 +220,9 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
         }
       }
 
-      if (StringUtils.equals("hdfs", ufsUri.getScheme())) {
+      if (StringUtils.equals("hdfs", ufsUri.getScheme())
+          || StringUtils.equals("webhdfs", ufsUri.getScheme())
+          || StringUtils.equals("swebhdfs", ufsUri.getScheme())) {
         try {
           // If this class is not loaded here, it will be later loaded by the system classloader
           // from alluxio server jar, but will be called by a class loaded with extension
@@ -456,7 +459,7 @@ public class HdfsUnderFileSystem extends ConsistentUnderFileSystem
     // as Alluxio can load/store data out of entire HDFS cluster
     FileSystem hdfs = getFs();
     long space = -1;
-    if (hdfs instanceof DistributedFileSystem) {
+    if ((hdfs instanceof DistributedFileSystem) || (hdfs instanceof WebHdfsFileSystem)) {
       // Note that, getDiskStatus() is an API from Hadoop 1, deprecated by getStatus() from
       // Hadoop 2 and removed in Hadoop 3
       switch (type) {
